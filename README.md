@@ -1,1 +1,1 @@
-# Vue chatbot
+# Vue Localbot
