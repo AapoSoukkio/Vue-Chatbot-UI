@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { ChatService } from '@/services/chatService'; 
 
-const messages = ref([
-  { content: 'Hello! How can I help you today?', sender: 'bot' }
-])
+const messages = ref([{ content: 'Hello! How can I help you today?', sender: 'bot' }]);
+const userInput = ref('');
 
-const userInput = ref('')
+async function handleSendMessage() {
+    const trimmedMessage = userInput.value.trim();
+    if (!trimmedMessage) return;
 
-function sendMessage() {
-  if (!userInput.value.trim()) return
-  messages.value.push({ content: userInput.value, sender: 'user' })
-  //TODO: add the logic to process the user input and generate a response 
-  userInput.value = '' // Reset input after sending
+    messages.value.push({ content: trimmedMessage, sender: 'user' });
+    userInput.value = ''; 
+
+    try {
+        const response = await ChatService.sendMessage(trimmedMessage);
+        messages.value.push({ content: response.message, sender: 'bot' });
+    } catch (error) {
+        console.error('Failed to get response from localbot:', error);
+    }
 }
 </script>
 
@@ -37,10 +43,10 @@ function sendMessage() {
           label="Ask me anything..."
           outlined
           dense
-          @keyup.enter="sendMessage"
+          @keyup.enter="handleSendMessage"
           class="flex-grow-1"
         ></v-text-field>
-        <v-btn color="primary" @click="sendMessage">Send</v-btn>
+        <v-btn color="primary" @click="handleSendMessage">Send</v-btn>
       </v-card-actions>
     </v-card>
   </v-container>
